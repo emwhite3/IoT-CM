@@ -7,5 +7,6 @@ from beautifultable import BeautifulTable
 # you can only see an obstacle if you move next to an obstacle
 # add the obstacle to the printed grid if they can see an obstacle by being in a square next to an obstacle
 # the goal is to get to a given coordinate
+# also add a way to record the decisions a player made so we can use this to compare it against the IBL model
 
 # recreate the grid in the slides presentation
