@@ -11,6 +11,7 @@ DECAY = 0.5
 DEFAULT_UTILITY = 30
 TARGET_COUNT = 2
 MISMATCH_PENALTY = 2.5
+GRID_SIZE = 200
 
 def reset_agent(agent, noise=NOISE, temperature=TEMPERATURE, decay=DECAY):
     agent.reset(False)
@@ -20,20 +21,13 @@ def reset_agent(agent, noise=NOISE, temperature=TEMPERATURE, decay=DECAY):
     agent.mismatch_penalty = MISMATCH_PENALTY
 
 
-# we can have 2 agents but we need to rework the attack agent
-# into the agent that evaluates safety and success attributes
-# we can then also add coordinates associated with these positive
-# attributes. From here the agent can decipher the enviornment
-# Then the goal after this is succesful is to build a safe and succesful path when given coordinates
-# there we can also add similarity. Once that is added we can add the validity agent
-# this agent will take in commands from labeled command providers
-# some trusted and some untrusted
+# 
 def populate_agent(movement):
-    movement.populate(-30, {"x": 0, "y": 0, "safe": False, "success": False, "trust": False})
-    movement.populate(110, {"attack": True, "warning": 0})
-    movement.populate(-55, {"attack": True, "warning": 0})
-    movement.instances()
-    pyibl.similarity(lambda x, y: 1-abs(x-y), "warning")
+    for x in range(GRID_SIZE):
+        for y in range(GRID_SIZE):
+            movement.populate(10, {"x": 0, "y": 0, "safe": False, "success": True, "trust": False})
+            movement.populate(110, {"attack": True, "warning": 0})
+            movement.populate(-55, {"attack": True, "warning": 0})
     pyibl.similarity(lambda x, y: 1, "movement")
     return
 
