@@ -12,6 +12,9 @@ DEFAULT_UTILITY = 30
 TARGET_COUNT = 2
 MISMATCH_PENALTY = 2.5
 GRID_SIZE = 200
+MAZE = []
+AGENT_MAZE = []
+
 
 def reset_agent(agent, noise=NOISE, temperature=TEMPERATURE, decay=DECAY):
     agent.reset(False)
@@ -21,32 +24,27 @@ def reset_agent(agent, noise=NOISE, temperature=TEMPERATURE, decay=DECAY):
     agent.mismatch_penalty = MISMATCH_PENALTY
 
 
-# 
+# since we know our starting point is safe, we set
+# the utility to be the highest points possible
 def populate_agent(movement):
-    for x in range(GRID_SIZE):
-        for y in range(GRID_SIZE):
-            movement.populate(10, {"x": 0, "y": 0, "safe": False, "success": True, "trust": False})
-            movement.populate(110, {"attack": True, "warning": 0})
-            movement.populate(-55, {"attack": True, "warning": 0})
+    movement.populate(10, {"x": 0, "y": 0, "safe": True, "success": True, "trust": True})
     pyibl.similarity(lambda x, y: 1, "movement")
     return
 
  
-# this is the creation of the attacker agent, it will first choose a box, then whether or not to attack
-# the box given some feedback or "signal"
+# we create one agent, this agent is responsible for approving the movement
+# to the specified direction
 def run(rounds=ROUNDS, participants=PARTICIPANTS):
-    agent_movement = pyibl.Agent("ATTACK AGENT", ["movement", "warning"], default_utility=DEFAULT_UTILITY, optimized_learning=False)
-    populate_agent(agent_select, agent_movement)
-    info = {"attack" : 0, "covered" : 0, "uncovered": 0, "withdraw": 0}
+    agent_movement = pyibl.Agent("MOVEMENT AGENT", ["safe", "success", "trust"], optimized_learning=False)
+    populate_agent(agent_movement)
+    info = {"safe" : 0, "success" : 0, "unsafe": 0}
     for p in tqdm(range(participants)):             # for every participant they will partake in a given number of rounds
-        reset_agent(agent_select)
         reset_agent(agent_movement)
-        COVERAGE = np.random.choice([0,1], size=(ROUNDS,), p=[0.25, 0.75])  # this is where the odds for the defender can be altered for picking boxes
         for r in range(rounds):
-            selection = agent_select.choose(0, 1)
-            warned = 1 if selection == COVERAGE[r] else 0 if random.random() > 0.25 else 1
+            direction = agent_select.choose(0, 1)
+            warned = 1 if direction == COVERAGE[r] else 0 if random.random() > 0.25 else 1
             movement = agent_movement.choose({"attack": False, "warning": warned}, {"attack": True, "warning": warned})["attack"]
-            covered = selection == COVERAGE[r]
+            covered = direction == COVERAGE[r]
             if movement:
                 info["attack"] += 1
                 payoff = -50 if covered else 100
