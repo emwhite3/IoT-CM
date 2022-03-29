@@ -39,23 +39,24 @@ def populate_agent(movement):
 def run(rounds=ROUNDS, participants=PARTICIPANTS):
     agent_movement = pyibl.Agent("MOVEMENT AGENT", ["no_obstacle", "trust"], optimized_learning=False)
     populate_agent(agent_movement)
-    info = {"safe" : 0, "success" : 0, "unsafe": 0, "directions": 0}
+    info = {"safe" : 0, "success" : 0, "unsafe": 0, "no_movement" = 0}
     for p in tqdm(range(participants)):
         reset_agent(agent_movement)
         for r in range(rounds):
             direction, safe, no_obstacle, x, y = choose_direction()
             movement = agent_movement.choose({"x": x, "y": y, "no_obstacle": no_obstacle, "trust": True, "move" : True}, {"x": x, "y": y, "no_obstacle": no_obstacle, "trust": True, "move" : False})["move"]
             if movement:
-                info["attack"] += 1
-                payoff = -50 if covered else 100
-                info["covered"] += 1 if payoff == -50 else 0
-                info["uncovered"] += 1 if payoff == 100 else 0
+                if no_obstacle:
+                    info["safe"] += 1
+                    info["success"] += 1
+                    payoff = 23
+                else:
+                    info["unsafe"] += 1
+                    payoff = -20
             else:
-                info["withdraw"] += 1
-                payoff = 0
-            
+                info["no_movement"] += 1
+                payoff = 0            
             agent_movement.respond(payoff)
-            agent_select.respond(payoff)
     print(info)
     return [info["attack"] / (ROUNDS * PARTICIPANTS), info["covered"] / (ROUNDS * PARTICIPANTS), info["uncovered"] / (ROUNDS * PARTICIPANTS), info["withdraw"] / (ROUNDS * PARTICIPANTS)]
 
