@@ -26,8 +26,9 @@ def reset_agent(agent, noise=NOISE, temperature=TEMPERATURE, decay=DECAY):
 
 # since we know our starting point is safe, we set
 # the utility to be the highest points possible
+# safe is determined by how we award points, should not be an attribute
 def populate_agent(movement):
-    movement.populate(10, {"x": 0, "y": 0, "safe": True, "success": True, "trust": True})
+    movement.populate(23, {"x": 0, "y": 0, "no_obstacle": True, "trust": True, "move", True})
     pyibl.similarity(lambda x, y: 1, "movement")
     return
 
@@ -35,16 +36,14 @@ def populate_agent(movement):
 # we create one agent, this agent is responsible for approving the movement
 # to the specified direction
 def run(rounds=ROUNDS, participants=PARTICIPANTS):
-    agent_movement = pyibl.Agent("MOVEMENT AGENT", ["safe", "success", "trust"], optimized_learning=False)
+    agent_movement = pyibl.Agent("MOVEMENT AGENT", ["no_obstacle", "trust"], optimized_learning=False)
     populate_agent(agent_movement)
-    info = {"safe" : 0, "success" : 0, "unsafe": 0}
-    for p in tqdm(range(participants)):             # for every participant they will partake in a given number of rounds
+    info = {"safe" : 0, "success" : 0, "unsafe": 0, "directions": 0}
+    for p in tqdm(range(participants)):
         reset_agent(agent_movement)
         for r in range(rounds):
-            direction = agent_select.choose(0, 1)
-            warned = 1 if direction == COVERAGE[r] else 0 if random.random() > 0.25 else 1
-            movement = agent_movement.choose({"attack": False, "warning": warned}, {"attack": True, "warning": warned})["attack"]
-            covered = direction == COVERAGE[r]
+            direction, safe, no_obstacle, x, y = choose_direction()
+            movement = agent_movement.choose({"x": x, "y": y, "no_obstacle": no_obstacle, "trust": True, "move" : True}, {"x": x, "y": y, "no_obstacle": no_obstacle, "trust": True, "move" : False})["move"]
             if movement:
                 info["attack"] += 1
                 payoff = -50 if covered else 100
