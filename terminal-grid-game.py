@@ -68,7 +68,8 @@ class Player(object):                    #Players can move around and do cool st
 
         Map.update()       
 
-    def CollisionCheck(self, Direction):       #Checks if anything is on top of the field in the direction that the player wants to move. Used in the move function
+    def CollisionCheck(self, Direction):       #Checks if anything is on top of the field in the direction that the player wants to move. 
+                                               #Used in the move function
         if Direction == "UP":
             if len(Map.Grid[self.Column][(self.Row)-1]) > 1:
                 return True
@@ -101,19 +102,21 @@ class Map(object):              #The main class; where the action happens
         for Column in range(MapSize):
             TempTile = MapTile("Field", Column, Row)
             Grid[Column][Row].append(TempTile)
+    
+    for Row in range(MapSize):     #Placing lumber near edge on top
+        for Column in range(1):
+            TempTile = MapTile("Lumber", Column, Row)
+            if Row == 0:
+                Grid[Column][Row].append(TempTile)
 
-    for i in range(10):          #Placing Random lumber
-        RandomRow = random.randint(0, MapSize - 1)
-        RandomColumn = random.randint(0, MapSize - 1)
-        TempTile = MapTile("Lumber", RandomColumn, RandomRow)
-        Grid[RandomColumn][RandomRow].append(TempTile)
-
-    for i in range(10):          #Placing Random obstacles
-        RandomRow = random.randint(0, MapSize - 1)
-        RandomColumn = random.randint(0, MapSize - 1)
-        TempTile = MapTile("Obstacles", RandomColumn, RandomRow)
-        Grid[RandomColumn][RandomRow].append(TempTile)
-
+    for Row in range(MapSize):     #Putting some obstacles near the top
+        for Column in range(4):
+            TempTile = MapTile("Obstacles", Column, Row)
+            if Row == 4:
+                Grid[Column][Row].append(TempTile)
+            elif Row == 3 & Column == 3:
+                Grid[Column][Row].append(TempTile)
+                
     RandomRow = random.randint(0, MapSize - 1)      #Dropping the arm in
     RandomColumn = random.randint(0, MapSize - 1)
     Arm = Player("Arm", 10, RandomColumn, RandomRow)
@@ -167,7 +170,8 @@ while not Done:     #Main pygame loop
         for Column in range(MapSize):
             for i in range(0, len(Map.Grid[Column][Row])):
                 Color = WHITE
-                if len(Map.Grid[Column][Row]) == 2:
+                #if len(Map.Grid[Column][Row]) == 2:
+                if Map.Grid[Column][Row][i].Name == "Obstacles":
                     Color = RED # This is obstacles
                 if Map.Grid[Column][Row][i].Name == "Lumber":
                     Color = BLUE
