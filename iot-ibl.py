@@ -29,10 +29,11 @@ def reset_agent(agent, noise=NOISE, temperature=TEMPERATURE, decay=DECAY):
 # safe is determined by how we award points, should not be an attribute
 def populate_agent(movement):
     movement.populate(23, {"x": 0, "y": 0, "no_obstacle": True, "trust": True, "move", True})
+    movement.populate(-20, {"x": GRID_SIZE, "y": GRID_SIZE, "no_obstacle": False, "trust": True, "move", True})
     pyibl.similarity(lambda x, y: 1, "movement")
     return
 
- 
+
 # we create one agent, this agent is responsible for approving the movement
 # to the specified direction
 def run(rounds=ROUNDS, participants=PARTICIPANTS):
