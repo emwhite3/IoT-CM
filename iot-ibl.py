@@ -34,6 +34,9 @@ def populate_agent(movement):
     return
 
 
+def choose_direction():
+    return
+
 # we create one agent, this agent is responsible for approving the movement
 # to the specified direction
 def run(rounds=ROUNDS, participants=PARTICIPANTS):
@@ -58,7 +61,7 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
                 payoff = 0            
             agent_movement.respond(payoff)
     print(info)
-    return [info["attack"] / (ROUNDS * PARTICIPANTS), info["covered"] / (ROUNDS * PARTICIPANTS), info["uncovered"] / (ROUNDS * PARTICIPANTS), info["withdraw"] / (ROUNDS * PARTICIPANTS)]
+    return [info["safe"] / (ROUNDS * PARTICIPANTS), info["success"] / (ROUNDS * PARTICIPANTS), info["unsafe"] / (ROUNDS * PARTICIPANTS), info["no_movement"] / (ROUNDS * PARTICIPANTS)]
 
 
 
