@@ -90,7 +90,6 @@ class Player(object):                    #Players can move around and do cool st
 
 class Map(object):              #The main class; where the action happens
     global MapSize
-
     Grid = []
 
     for Row in range(MapSize):     # Creating grid
@@ -116,10 +115,9 @@ class Map(object):              #The main class; where the action happens
                 Grid[Column][Row].append(TempTile)
             elif Row == 3 & Column == 3:
                 Grid[Column][Row].append(TempTile)
-                
-    RandomRow = random.randint(0, MapSize - 1)      #Dropping the arm in
-    RandomColumn = random.randint(0, MapSize - 1)
-    Arm = Player("Arm", 10, RandomColumn, RandomRow)
+
+    
+    Arm = Player("Arm", 10, 0, 0)
 
     def update(self):        #Very important function
                              #This function goes through the entire grid
@@ -127,7 +125,7 @@ class Map(object):              #The main class; where the action happens
                              #Disagree with its current position in the grid
                              #If they do, it removes the objects and places it 
                              #on the grid according to its internal coordinates 
-
+        
         for Column in range(MapSize):      
             for Row in range(MapSize):
                 for i in range(len(Map.Grid[Column][Row])):
@@ -138,9 +136,8 @@ class Map(object):              #The main class; where the action happens
         Map.Grid[int(Map.Arm.Column)][int(Map.Arm.Row)].append(Map.Arm)
 
 Map = Map()
-
 while not Done:     #Main pygame loop
-
+    
     for event in pygame.event.get():         #catching events
         if event.type == pygame.QUIT:
             Done = True       
@@ -172,7 +169,10 @@ while not Done:     #Main pygame loop
                 Color = WHITE
                 #if len(Map.Grid[Column][Row]) == 2:
                 if Map.Grid[Column][Row][i].Name == "Obstacles":
-                    Color = RED # This is obstacles
+                    if (Map.Arm.Row == Row - 1 and Map.Arm.Column == Column) or (Map.Arm.Row == Row + 1 and Map.Arm.Column == Column) or (Map.Arm.Column == Column - 1 and Map.Arm.Row == Row) or (Map.Arm.Column == Column + 1 and Map.Arm.Row == Row):
+                      Color = RED # This is obstacles
+                    else:
+                      Color = WHITE
                 if Map.Grid[Column][Row][i].Name == "Lumber":
                     Color = BLUE
                 if Map.Grid[Column][Row][i].Name == "Arm":
