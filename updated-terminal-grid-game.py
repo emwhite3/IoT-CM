@@ -41,7 +41,7 @@ class Player(object):                    #Players can move around and can do coo
         self.Name = Name
         self.Column = Column
         self.Row = Row
-
+        
     def Move(self, Direction):              #This function is how a player moves around in a certain direction
 
         if Direction == "UP":
@@ -114,11 +114,13 @@ class Map(object):              #The main class where the action happens
                 Grid[Column][Row].append(TempTile)
             elif Row == 3 & Column == 3:
                 Grid[Column][Row].append(TempTile)
-                
-    RandomRow = random.randint(0, MapSize - 1)      #Dropping the arm in
-    RandomColumn = random.randint(0, MapSize - 1)
-    Arm = Player("Arm", RandomColumn, RandomRow)
-
+    
+    for Row in range(MapSize):     #Dropping Arm (Agent) in the bottom left corner
+        for Column in range(1):
+            Arm = Player("Arm", Column, Row)
+            if Row == 8:
+                Grid[Column][Row].append(Arm)
+     
     def update(self):        #Very important function
                              #This function goes through the entire grid
                              #And checks to see if any object's internal coordinates
@@ -182,10 +184,13 @@ while not Done:     #Main pygame loop
     for Row in range(MapSize):           #Drawing grid
         for Column in range(MapSize):
             for i in range(0, len(Map.Grid[Column][Row])):
-                Color = WHITE
                 #if len(Map.Grid[Column][Row]) == 2:
+                Color = WHITE
                 if Map.Grid[Column][Row][i].Name == "Obstacles":
-                    Color = RED # This is obstacles
+                    if(Map.Arm.Row == Row - 1 and Map.Arm.Column == Column) or (Map.Arm.Row == Row + 1 and Map.Arm.Column == Column) or (Map.Arm.Column == Column - 1 and Map.Arm.Row == Row) or (Map.Arm.Column == Column + 1 and Map.Arm.Row == Row):
+                        Color = RED # This is obstacles
+                    else:
+                        Color = WHITE
                 if Map.Grid[Column][Row][i].Name == "Lumber":
                     Color = BLUE
                 if Map.Grid[Column][Row][i].Name == "Arm":
