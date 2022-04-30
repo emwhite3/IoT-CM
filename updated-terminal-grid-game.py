@@ -2,28 +2,28 @@
 # By using python we have simulated a grid
 # it is a 10 x 10 grid 
 # the rules are you can only mode up down left and right
-# you can only see an obstacle if you move next to an obstacle (work in progress, will be ready for final presentation)
-# add the obstacle to the printed grid if they can see an obstacle by being in a square next to an obstacle
+# you can only see an obstacle if you move next to an obstacle
 # the goal is to get to a given coordinate
-# there will be a way to record the decisions a player made so we can use this to compare it against the IBL model (work in progress)
-# the obstacles are not random at the moment. 
+# there will be a way to record the decisions a player made so we can use this to compare it against the IBL model
+# the obstacles are not at random location. 
 
 import random as random    
 import pygame as pygame # Installed pygame in order to create grid and game
-import csv
+import time # Having a timer to determine the arm or agent to reach to its location
+import csv # Writing result to file
 
-pygame.init()                                 #start up the pygame
-clock = pygame.time.Clock()                   #needed for framerate not to sure
-Screen = pygame.display.set_mode([250, 250])  #making the window
-Done = False                                  #variable to keep track if window is open
-MapSize = 10                                  #how many tiles in either direction of grid
-DEFAULT_OUTPUT_FILE = "result.txt"            # using file to record decision from player
+pygame.init()                                 #Start up the pygame
+clock = pygame.time.Clock()                   #Needed for framerate not to sure
+Screen = pygame.display.set_mode([250, 250])  #Making the window
+Done = False                                  #Variable to keep track if window is open
+MapSize = 10                                  #How many tiles in either direction of grid
+DEFAULT_OUTPUT_FILE = "result.txt"            #Using file to record decision from player
 
-TileWidth = 20                                #pixel sizes for grid squares
+TileWidth = 20                                #Pixel sizes for grid squares
 TileHeight = 20
 TileMargin = 4
 
-BLACK = (0, 0, 0)                             #some color definitions
+BLACK = (0, 0, 0)                             #Some color definitions
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
@@ -126,7 +126,7 @@ class Map(object):              #The main class where the action happens
                              #And checks to see if any object's internal coordinates
                              #Disagree with its current position in the grid
                              #If they do, it removes the objects and places it 
-                             #on the grid according to its internal coordinates 
+                             #On the grid according to its internal coordinates 
 
         for Column in range(MapSize):      
             for Row in range(MapSize):
@@ -140,7 +140,7 @@ class Map(object):              #The main class where the action happens
 Map = Map()
 
 while not Done:     #Main pygame loop
-
+    t0 = time.time() # starting timer
     for event in pygame.event.get():         #catching events
         if event.type == pygame.QUIT:
             Done = True       
@@ -149,9 +149,13 @@ while not Done:     #Main pygame loop
             Pos = pygame.mouse.get_pos()
             Column = Pos[0] // (TileWidth + TileMargin)  #Translating the position of the mouse into rows and columns
             Row = Pos[1] // (TileHeight + TileMargin)
+            f = open(DEFAULT_OUTPUT_FILE, "a") 
             for i in range(len(Map.Grid[Column][Row])):
-                #printing out location on where the arm is at when mouse clicks anywhere on the grid
-                print("Row:" + str(Row) + ", Column:" + str(Column) + ", Square:" + str(Map.Grid[Column][Row][i].Name))  
+                #Printing out location on where the arm is at when mouse clicks anywhere on the grid
+                print("\nRow: " + str(Row) + ", Column: " + str(Column) + ", Square: " + str(Map.Grid[Column][Row][i].Name))
+                #Writing to file the path of the arm when moving around the grid while pushing the mouse button
+                path = ("\nRow: " + str(Row) + ", Column: " + str(Column) + ", Square: " + str(Map.Grid[Column][Row][i].Name))
+                f.write(path)
                     
         elif event.type == pygame.KEYDOWN:
             Pos = pygame.mouse.get_pos()
@@ -159,8 +163,8 @@ while not Done:     #Main pygame loop
             Row = Pos[1] // (TileHeight + TileMargin)
             f = open(DEFAULT_OUTPUT_FILE, "a")       
             for i in range(len(Map.Grid[Column][Row])):
-                #Writing to file the path of the arm when moving around the grid
-                path = ("\nRow: " + str(Row) + ", Column: " + str(Column) + ", Square: " + str(Map.Grid[Column][Row][i].Name))
+                #Writing to file the path of the arm when moving around the grid while pushing the key button
+                path = ("\nRow: " + str(Map.Arm.Row) + ", Column: " + str(Map.Arm.Column) + ", Square: " + str(Map.Grid[Column][Row][i].Name))
                 if event.key == pygame.K_LEFT:
                     Map.Arm.Move("LEFT")
                     f.write(path)
@@ -206,5 +210,14 @@ while not Done:     #Main pygame loop
 
     pygame.display.flip()     #Need this (not sure what it is used for, it breaks if removed)
     Map.update()
+    t1 = time.time() # finishing timer
+    
 
 pygame.quit()
+
+total = t1-t0
+print("\nThe time it took to reach lumber is: " + str(total)) # Printing out timer
+f = open(DEFAULT_OUTPUT_FILE, "a") 
+total_timer = ("\nTime: " + str(total)) # Having total timer when reaching lumber
+f.write(total_timer) # Writing to file
+f.close()
