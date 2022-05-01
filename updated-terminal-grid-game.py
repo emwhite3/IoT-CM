@@ -139,9 +139,12 @@ class Map(object):              #The main class where the action happens
 
 Map = Map()
 
+start_time = time.time() # starting time
+
 while not Done:     #Main pygame loop
-    t0 = time.time() # starting timer
-    for event in pygame.event.get():         #catching events
+    
+    elapsed_time = time.time() - start_time  # Getting elapsed time
+    for event in pygame.event.get():         #Catching events
         if event.type == pygame.QUIT:
             Done = True       
 
@@ -210,14 +213,11 @@ while not Done:     #Main pygame loop
 
     pygame.display.flip()     #Need this (not sure what it is used for, it breaks if removed)
     Map.update()
-    t1 = time.time() # finishing timer
     
-
 pygame.quit()
 
-total = t1-t0
-print("\nThe time it took to reach lumber is: " + str(total)) # Printing out timer
+print("\nThe time it took to reach lumber is: " + str(elapsed_time)) # Printing out timer
 f = open(DEFAULT_OUTPUT_FILE, "a") 
-total_timer = ("\nTime: " + str(total)) # Having total timer when reaching lumber
+total_timer = ("\nResult: " + str(elapsed_time)) # Having total timer when reaching lumber
 f.write(total_timer) # Writing to file
 f.close()
