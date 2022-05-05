@@ -17,7 +17,7 @@ GOAL = [0, 1]
 MAZE = [[0, -1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]        # -1 is the goal, 1 is an obstacle and 0 is an open cell
 AGENT_MAZE = [0*len(MAZE)] * len(MAZE[0])
 VISITED = []
-TRUST = [1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, -1, 1, 1, 1, 2, 1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 2, 1, -1, 1, 1, 1, 1, -1, 1, 2, 1, 1, 1, 1]
+TRUST = [30, 10, 30, 30, -20, 30, 30, -20, 30, 30, 30, 30, 30, -20, 30, 30, 30, 30, -20, -20, 10, 30, 10, 30, 30, 30, 30, 30, 30, -20, 30, 30, 10, 30, 30, 30, 30, 30, -20, 30, 30, 30, 30, -20, -20, 10, 10, 10, 30, 30]
 collision = [0] # collision
 
 def dfs_maze():
@@ -95,7 +95,7 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
             goal_met = False
             while not goal_met:
                 goal_met, safe, no_obstacle, x, y = choose_direction()
-                movement = agent_movement.choose({"move" : True, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True if rand() > 0.40 else False}, {"move" : False, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True if rand() > 0.40 else False})["move"]
+                movement = agent_movement.choose({"move" : True, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True if TRUST[r]> 0 else False}, {"move" : False, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True if TRUST[r]> 0 else False})["move"]
                 if movement:
                     if no_obstacle:
                         info["safe"] += 1

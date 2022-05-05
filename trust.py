@@ -31,15 +31,15 @@ def payoff(score, choice, trial):
     if not choice["TRUST"]:
         score.update(10)
         INFO["Deny"][trial] += 1
-        output.append(1)
+        output.append(10)
     elif verify_ip(choice["IP"]):
         score.update(30)
         INFO["Trust"][trial] += 1
-        output.append(2)
+        output.append(30)
     else:
         score.update(-20)
         INFO["Fail"][trial] += 1
-        output.append(-1)
+        output.append(-20)
 
 def reset(agent):
     agent.reset()
