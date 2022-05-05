@@ -1,10 +1,10 @@
 import pyibl
-import random
+from random import random as rand
 from tqdm import tqdm
 import numpy as np
  
 PARTICIPANTS = 1000
-ROUNDS = 50
+ROUNDS = 2000
 NOISE = 0.25
 TEMPERATURE = 1.0
 DECAY = 0.5
@@ -17,6 +17,7 @@ GOAL = [0, 1]
 MAZE = [[0, -1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]        # -1 is the goal, 1 is an obstacle and 0 is an open cell
 AGENT_MAZE = [0*len(MAZE)] * len(MAZE[0])
 VISITED = []
+col = 0
 
 def dfs_maze():
     stack = []
@@ -33,8 +34,11 @@ def move_maze():
     VISITED.append(ARM)
     if ARM[0] > GOAL[0]:        # if the GOAL is above then move up
         if MAZE[(ARM[0] - 1)][ARM[1]] == 0:   # if an obstacle is not present then move here
-            ARM[0] -= 1
-            return False
+            if rand.random() > 0.15:
+                ARM[0] -= 1
+                return False
+            else:
+                ARM[0] -= 1
         else:
             ARM[1] += 1
             return False
@@ -83,7 +87,7 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
             goal_met = False
             while not goal_met:
                 goal_met, safe, no_obstacle, x, y = choose_direction()
-                movement = agent_movement.choose({"move" : True, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True}, {"move" : False, "x": x, "y": y, "no_obstacle": not no_obstacle, "trust": False})["move"]
+                movement = agent_movement.choose({"move" : True, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True if rand() > 0.40 else False}, {"move" : False, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True if rand() > 0.40 else False})["move"]
                 if movement:
                     if no_obstacle:
                         info["safe"] += 1
