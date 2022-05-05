@@ -39,6 +39,8 @@ def move_maze():
                 return False
             else:
                 ARM[0] -= 1
+                col += 1
+                return False
         else:
             ARM[1] += 1
             return False
@@ -107,3 +109,4 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
 
 
 print(run())
+print(col / (ROUNDS * PARTICIPANTS))
