@@ -3,8 +3,8 @@ from random import random as rand
 from tqdm import tqdm
 import numpy as np
  
-PARTICIPANTS = 1000
-ROUNDS = 2000
+PARTICIPANTS = 100
+ROUNDS = 50
 NOISE = 0.25
 TEMPERATURE = 1.0
 DECAY = 0.5
@@ -17,7 +17,8 @@ GOAL = [0, 1]
 MAZE = [[0, -1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]        # -1 is the goal, 1 is an obstacle and 0 is an open cell
 AGENT_MAZE = [0*len(MAZE)] * len(MAZE[0])
 VISITED = []
-col = 0
+TRUST = [1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 1, -1, 1, 1, 1, 2, 1, 1, 1, 1, 1, -1, 1, 1, 1, 1, 1, 1, 2, 1, -1, 1, 1, 1, 1, -1, 1, 2, 1, 1, 1, 1]
+collision = [0] # collision
 
 def dfs_maze():
     stack = []
@@ -29,17 +30,22 @@ def dfs_maze():
         
     return
 
+def trust_model_output(movement, t):
+    if movement:
+        return TRUST[t]
+    else:
+        return 0
 
 def move_maze():
     VISITED.append(ARM)
     if ARM[0] > GOAL[0]:        # if the GOAL is above then move up
         if MAZE[(ARM[0] - 1)][ARM[1]] == 0:   # if an obstacle is not present then move here
-            if rand.random() > 0.15:
+            if rand() > 0.9:
                 ARM[0] -= 1
                 return False
             else:
                 ARM[0] -= 1
-                col += 1
+                collision[0] += 1
                 return False
         else:
             ARM[1] += 1
@@ -101,7 +107,7 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
                 else:
                     info["no_movement"] += 1
                     payoff = 0            
-                agent_movement.respond(payoff)
+                agent_movement.respond(payoff + trust_model_output(movement, r))
                 info["goal_moves"] += 1
     print(info)
     return [info["safe"] / (ROUNDS * PARTICIPANTS), info["success"] / (ROUNDS * PARTICIPANTS), info["unsafe"] / (ROUNDS * PARTICIPANTS), info["no_movement"] / (ROUNDS * PARTICIPANTS)]
@@ -109,4 +115,4 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
 
 
 print(run())
-print(col / (ROUNDS * PARTICIPANTS))
+print(collision[0] / (ROUNDS * PARTICIPANTS))
