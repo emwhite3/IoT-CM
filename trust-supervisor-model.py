@@ -2,7 +2,8 @@ import pyibl
 from random import random as rand
 from tqdm import tqdm
 import numpy as np
- 
+from trust import run as trust_run
+
 PARTICIPANTS = 1
 ROUNDS = 50
 NOISE = 0.25
@@ -17,10 +18,12 @@ GOAL = [0, 1]
 MAZE = [[0, -1, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 1, 0, 0, 0, 0, 0, 0], [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]        # -1 is the goal, 1 is an obstacle and 0 is an open cell
 AGENT_MAZE = [0*len(MAZE)] * len(MAZE[0])
 VISITED = []
-TRUST = [30, 10, 30, 30, -20, 30, 30, -20, 30, 30, 30, 30, 30, -20, 30, 30, 30, 30, -20, -20, 10, 30, 10, 30, 30, 30, 30, 30, 30, -20, 30, 30, 10, 30, 30, 30, 30, 30, -20, 30, 30, 30, 30, -20, -20, 10, 10, 10, 30, 30]
+TRUST = trust_run()
 collision = [0] # collision
 moves = []
 
+def populate_trust():
+    TRUST = trust_run()
 
 def trust_model_output(movement, t):
     if movement:
@@ -106,6 +109,8 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
                     payoff = 0            
                 agent_movement.respond(payoff + trust_model_output(movement, r))
                 info["goal_moves"] += 1
+            populate_trust()
+            print(TRUST)
             # agent_movement.instances()
     print(info)
     return [info["safe"] / (ROUNDS * PARTICIPANTS), info["success"] / (ROUNDS * PARTICIPANTS), info["unsafe"] / (ROUNDS * PARTICIPANTS), info["no_movement"] / (ROUNDS * PARTICIPANTS)]

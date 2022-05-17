@@ -1,6 +1,6 @@
 import pyibl
 from tqdm import tqdm
-from random import random
+import random as rand
 
 TRIALS = 50
 PARTICIPANTS = 1
@@ -9,8 +9,20 @@ NOISE = 0.25
 DECAY = 0.25
 INFO = {"Deny": [0] * TRIALS, "Trust": [0] * TRIALS, "Fail": [0] * TRIALS}
 BLACKLIST = ["192.168.1.17"]
+WHITELIST = ["192.168.24.17"]
 IP = ["192.168.24.17", "192.168.24.17", "192.168.24.17", "192.168.24.17", "192.168.1.17", "192.168.24.17", "192.168.24.17", "192.168.1.17", "192.168.24.18", "192.168.24.19", "192.168.24.20", "192.168.24.20", "192.168.24.20", "192.168.1.17", "192.168.24.17", "192.168.24.17", "192.168.24.17", "192.168.24.17", "192.168.1.17", "192.168.1.17", "192.168.24.17", "192.168.24.200", "192.168.24.235", "192.168.24.8", "192.168.24.96", "192.168.24.17", "192.168.24.17", "192.168.24.17", "192.168.24.17", "192.168.1.17", "192.168.24.17", "192.168.24.17", "192.168.1.17", "192.168.24.18", "192.168.24.19", "192.168.24.20", "192.168.24.20", "192.168.24.20", "192.168.1.17", "192.168.24.17", "192.168.24.17", "192.168.24.17", "192.168.24.17", "192.168.1.17", "192.168.1.17", "192.168.24.17", "192.168.24.200", "192.168.24.235", "192.168.24.8", "192.168.24.96"]
 output = []
+
+def populate_ip():
+    IP = []
+    for i in range(50):
+        if rand.random() > 0.66:
+            IP.append(WHITELIST[0])
+        elif rand.random() > 0.33:
+            IP.append("192.168.24." + str(rand.randint(0, 255)))
+        else:
+            IP.append(BLACKLIST[0])
+    return
 
 def ip_similarity(x, y):
     ip_x = x.split(".")
@@ -59,8 +71,10 @@ def run():
             choice = trust_agent.choose(packet_pass, packet_block)
             score = trust_agent.respond()
             payoff(score, choice, t)
-    trust_agent.instances()     
-    return [(sum(INFO["Trust"]) / (PARTICIPANTS * TRIALS)), (sum(INFO["Deny"]) / (PARTICIPANTS * TRIALS)), (sum(INFO["Fail"]) / (PARTICIPANTS * TRIALS))]
+        populate_ip()
+    # trust_agent.instances() 
+    return output    
+    # return [(sum(INFO["Trust"]) / (PARTICIPANTS * TRIALS)), (sum(INFO["Deny"]) / (PARTICIPANTS * TRIALS)), (sum(INFO["Fail"]) / (PARTICIPANTS * TRIALS))]
 
 print(run())
 print(output)
