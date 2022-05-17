@@ -19,16 +19,8 @@ AGENT_MAZE = [0*len(MAZE)] * len(MAZE[0])
 VISITED = []
 TRUST = [30, 10, 30, 30, -20, 30, 30, -20, 30, 30, 30, 30, 30, -20, 30, 30, 30, 30, -20, -20, 10, 30, 10, 30, 30, 30, 30, 30, 30, -20, 30, 30, 10, 30, 30, 30, 30, 30, -20, 30, 30, 30, 30, -20, -20, 10, 10, 10, 30, 30]
 collision = [0] # collision
+moves = []
 
-def dfs_maze():
-    stack = []
-    stack.append([0,0])
-    visited = [[False for j in range(len(MAZE))] for i in range(len(MAZE[0]))]
-    while len(stack) > 0:
-        curr = stack.pop()
-        visited[curr[0]][curr[1]] = True
-        
-    return
 
 def trust_model_output(movement, t):
     if movement:
@@ -36,20 +28,20 @@ def trust_model_output(movement, t):
     else:
         return 0
 
+# this is our algorithm to find the goal
 def move_maze():
-    VISITED.append(ARM)
-    if ARM[0] > GOAL[0]:        # if the GOAL is above then move up
+    if ARM[0] > GOAL[0]:                      # if the GOAL is above then move up
         if MAZE[(ARM[0] - 1)][ARM[1]] == 0:   # if an obstacle is not present then move here
-            if rand() > 0.9:
-                ARM[0] -= 1
-                return False
-            else:
+            ARM[0] -= 1
+            return False
+        else:
+            if rand() > 0.7:                  # this is the random modifier that creates collisions
                 ARM[0] -= 1
                 collision[0] += 1
                 return False
-        else:
-            ARM[1] += 1
-            return False
+            else:                             # move right
+                ARM[1] += 1
+                return False
     if ARM[1] > GOAL[1]:
         ARM[1] -= 1
         return False
@@ -92,10 +84,13 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
     agent_movement = pyibl.Agent("MOVEMENT AGENT", ["move", "x", "y", "no_obstacle", "trust"])
     info = {"safe" : 0, "success" : 0, "unsafe": 0, "no_movement": 0, "goal_moves": 0}
     for p in tqdm(range(participants)):
+        moves.append([])
         reset_agent(agent_movement)
         for r in range(rounds):
             goal_met = False
+            moves[p].append(0)
             while not goal_met:
+                moves[p][r] += 1
                 goal_met, safe, no_obstacle, x, y = choose_direction()
                 movement = agent_movement.choose({"move" : True, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True if TRUST[r]> 0 else False}, {"move" : False, "x": x, "y": y, "no_obstacle": no_obstacle, "trust": True if TRUST[r]> 0 else False})["move"]
                 if movement:
@@ -111,11 +106,17 @@ def run(rounds=ROUNDS, participants=PARTICIPANTS):
                     payoff = 0            
                 agent_movement.respond(payoff + trust_model_output(movement, r))
                 info["goal_moves"] += 1
-            agent_movement.instances()
+            # agent_movement.instances()
     print(info)
     return [info["safe"] / (ROUNDS * PARTICIPANTS), info["success"] / (ROUNDS * PARTICIPANTS), info["unsafe"] / (ROUNDS * PARTICIPANTS), info["no_movement"] / (ROUNDS * PARTICIPANTS)]
 
 
-
 print(run())
-print(collision[0] / (ROUNDS * PARTICIPANTS))
+print(collision)
+print(len(collision))
+print(sum(collision) / (ROUNDS * PARTICIPANTS))
+proportion = []
+for moveset in moves:
+    proportion.append(sum(moveset) / ROUNDS)
+print(proportion)
+print(moves)
